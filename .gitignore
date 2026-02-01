@@ -1,0 +1,102 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment variables (secrets)
+.env
+.env.local
+*.env
+
+# Discord / API tokens (never commit!)
+*_token*
+*_secret*
+DISCORD_TOKEN
+HUGGINGFACE_TOKEN
+
+# Data & models (large files)
+data/*.mp3
+data/*.wav
+data/*.flac
+models/*.safetensors
+models/*.bin
+models/*.pt
+models/*.pth
+!models/.gitkeep
+!data/.gitkeep
+
+# Generated audio
+output/
+outputs/
+*.wav
+!data/.gitkeep
+
+# Logs (keep structure, ignore large logs)
+logs/*.log
+logs/*.txt
+!logs/.gitkeep
+!logs/development-log.md
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db

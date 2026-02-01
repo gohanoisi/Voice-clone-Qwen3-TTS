@@ -1,0 +1,27 @@
+# Voice-clone-Qwen3-TTS 依存パッケージ
+# WSL2/Ubuntu 24.04, Python 3.12, CUDA 12.1 想定
+
+# Qwen3-TTS（公式パッケージ）
+qwen-tts>=0.1.0
+
+# PyTorch（CUDA 12.1用は別途インストール推奨）
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+torch>=2.0.0
+torchaudio>=2.0.0
+
+# 音声処理
+soundfile>=0.12.0
+numpy>=1.24.0
+
+# Discord bot
+discord.py>=2.3.0
+
+# 開発・テスト用
+pytest>=7.0.0
+black>=23.0.0
+ruff>=0.1.0
+gtts>=4.0.0  # テスト用: 参照音声のフォールバック生成
+
+# オプション: FlashAttention 2（VRAM節約・高速化）
+# pip install flash-attn --no-build-isolation
+# flash-attn>=2.5.0
