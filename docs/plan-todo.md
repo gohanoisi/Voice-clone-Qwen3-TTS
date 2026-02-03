@@ -6,6 +6,90 @@ Bolt Plan 01 のタスク 4・5 をサブタスクに分解し、完了条件・
 
 ---
 
+## 完了済みタスク（概要）
+
+- **タスク1**: 環境構築
+- **タスク2**: （スキップ）
+- **タスク3**: （スキップ）
+- **タスク4**: TTS 実装（公式サンプル）
+- **タスク5**: 単一話者でのボイスクローン
+
+---
+
+## タスク 5.5: ドキュメント更新（現在のタスク）
+
+**完了条件**: 以下の 5 ドキュメントがプロンプトの更新方針に沿って更新され、整合性が取れていること。
+
+| ID | サブタスク | 完了条件 |
+|----|------------|----------|
+| 5.5-1 | `docs/project-spec.md` 更新 | 今回やること/やらないこと、用語の明確化、Discord レイテンシ対策を反映 |
+| 5.5-2 | `docs/architecture.md` 更新 | データ構造変更、VoiceProfileManager・CLI、キャッシュ戦略を反映 |
+| 5.5-3 | `docs/api-design.md` 更新 | VoiceProfileManager API、CLI インターフェースを追加 |
+| 5.5-4 | `docs/technical-decisions.md` 更新 | 声プロファイル関連の決定事項テーブル、ファインチューニング方針を追加 |
+| 5.5-5 | `docs/plan-todo.md` 更新 | タスク 5.5〜5.7、依存関係を反映（本タスク） |
+
+### チェックリスト（タスク 5.5）
+
+- [ ] 5.5-1. `docs/project-spec.md` 更新
+- [ ] 5.5-2. `docs/architecture.md` 更新
+- [ ] 5.5-3. `docs/api-design.md` 更新
+- [ ] 5.5-4. `docs/technical-decisions.md` 更新
+- [ ] 5.5-5. `docs/plan-todo.md` 更新
+
+---
+
+## タスク 5.6: 声プロファイル管理の実装
+
+**完了条件**: VoiceProfileManager がメタデータを読み込み、話者一覧・プロファイル取得ができること。単体テストが通ること。
+
+| ID | サブタスク | 完了条件 | 依存 |
+|----|------------|----------|------|
+| 5.6-1 | `data/metadata.csv` のスキーマ設計・サンプル作成 | カラム: sample_id, speaker_name, audio_path, corpus_text, language, description。サンプル行を 1 件以上用意 | タスク 5.5 完了 |
+| 5.6-2 | `src/profile/voice_profile_manager.py` 実装 | VoiceProfileManager が `docs/api-design.md` のシグネチャに沿って定義され、list_speakers / get_profile / get_all_profiles が動作する | 5.6-1 |
+| 5.6-3 | テストデータ作成 | 複数話者の音声サンプルを data/voice_samples に追加し、metadata.csv に登録（既存 my_voice を 001_gohan 等にリネームしても可） | 5.6-1 |
+| 5.6-4 | 単体テスト実装 | `tests/test_voice_profile_manager.py` で list_speakers / get_profile 等をテスト | 5.6-2 |
+
+### チェックリスト（タスク 5.6）
+
+- [ ] 5.6-1. `data/metadata.csv` スキーマ・サンプル作成
+- [ ] 5.6-2. `src/profile/voice_profile_manager.py` 実装
+- [ ] 5.6-3. テストデータ作成（複数話者）
+- [ ] 5.6-4. `tests/test_voice_profile_manager.py` 実装
+
+---
+
+## タスク 5.7: CLI ツール実装
+
+**完了条件**: `python -m src.tools.test_synthesis --list-speakers` で話者一覧が表示され、`--speaker` + `--text` で音声が生成されること。
+
+| ID | サブタスク | 完了条件 | 依存 |
+|----|------------|----------|------|
+| 5.7-1 | `src/tools/test_synthesis.py` 実装 | argparse、VoiceProfileManager 連携。--list-speakers / --speaker / --text / --output / --language をサポート | タスク 5.6 完了 |
+| 5.7-2 | 動作確認 | 話者一覧表示、音声合成テストを手動で実施 | 5.7-1 |
+| 5.7-3 | README 更新 | CLI ツールの使い方（上記コマンド例）を README に追記 | 5.7-2 |
+
+### チェックリスト（タスク 5.7）
+
+- [ ] 5.7-1. `src/tools/test_synthesis.py` 実装
+- [ ] 5.7-2. 動作確認（話者一覧、音声合成）
+- [ ] 5.7-3. README 更新
+
+---
+
+## タスク 6: Discord Bot 実装（変更なし）
+
+既存のタスク 6 をそのまま維持する。Bot 実装時には VoiceProfileManager から話者プロファイルを取得し、TTS に渡す構成とする。
+
+---
+
+## 依存関係（全体）
+
+```
+タスク5 完了 → タスク5.5（Doc更新） → タスク5.6（プロファイル管理） → タスク5.7（CLI） → タスク6（Discord Bot）
+```
+
+---
+
 ## 元のタスク 4: Qwen3-TTS Base モデルでサンプル音声を生成する
 
 **Bolt 上の完了条件**: 公式サンプル（ref_audio + ref_text）で WAV が出力される。
@@ -83,3 +167,14 @@ Bolt Plan 01 のタスク 4・5 をサブタスクに分解し、完了条件・
 ## 実行ログ
 
 サブタスクの実施・完了は `logs/development-log.md` に記録する。
+
+---
+
+## metadata.csv スキーマ例（参考）
+
+```text
+sample_id,speaker_name,audio_path,corpus_text,language,description
+001,gohan,data/voice_samples/001_gohan.mp3,"こんにちは、私の名前はゴハンです。これはボイスクローンのテストです。天気予報によると、今日は晴れのち曇りで、最高気温は15度になるそうです。",ja,メインの声プロファイル
+002,gohan,data/voice_samples/002_gohan_long.mp3,"...(長めのコーパス)...",ja,長文サンプル
+003,friend_a,data/voice_samples/003_friend_a.mp3,"こんにちは。友人Aです。テストをしています。",ja,友人Aの声
+```

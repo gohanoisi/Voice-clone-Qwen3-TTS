@@ -1,0 +1,4 @@
+こんにちは、私の名前はゴハンです。これはボイスクローンのテストです。
+天気予報によると、今日は晴れのち曇りで、最高気温は15度になるそうです。
+Hello, my name is Gohan. This is a voice cloning test.
+According to the weather forecast, it will be sunny then cloudy today.

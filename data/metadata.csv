@@ -1,0 +1,2 @@
+sample_id,speaker_name,audio_path,corpus_text,language,description
+001,gohan,data/voice_samples/my_voice.mp3,"こんにちは、私の名前はゴハンです。これはボイスクローンのテストです。天気予報によると、今日は晴れのち曇りで、最高気温は15度になるそうです。",ja,メインの声プロファイル

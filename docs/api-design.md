@@ -4,9 +4,102 @@ Voice-clone-Qwen3-TTS の各モジュールの公開 API（クラス・関数の
 
 ---
 
-## 2.1 TTS Module API
+## 2.1 Voice Profile Management Module API
 
-### 2.1.1 `src/tts/qwen_wrapper.py`
+### 2.1.1 `src/profile/voice_profile_manager.py`
+
+#### クラス: `VoiceProfileManager`
+
+声プロファイル（ref_audio + ref_text）の管理。メタデータ（CSV または JSON）を読み込み、話者一覧・プロファイル取得を提供する。
+
+```python
+# src/profile/voice_profile_manager.py
+
+from typing import Any, Dict, List
+
+
+class VoiceProfileManager:
+    """声プロファイル（ref_audio + ref_text）の管理"""
+
+    def __init__(self, metadata_path: str = "data/metadata.csv") -> None:
+        """
+        Args:
+            metadata_path: メタデータファイルのパス（CSV or JSON）
+
+        Raises:
+            FileNotFoundError: メタデータファイルが存在しない
+            ValueError: メタデータの形式が不正
+        """
+        pass
+
+    def list_speakers(self) -> List[str]:
+        """
+        利用可能な話者名の一覧を返す。
+
+        Returns:
+            話者名のリスト（例: ["gohan", "friend_a"]）
+        """
+        pass
+
+    def get_profile(self, speaker_name: str) -> Dict[str, Any]:
+        """
+        指定した話者の声プロファイルを取得（代表 1 件）。
+
+        Args:
+            speaker_name: 話者名
+
+        Returns:
+            {
+                "audio_path": "data/voice_samples/001_gohan.mp3",
+                "corpus_text": "こんにちは、私の名前は...",
+                "language": "ja",
+                "description": "メインの声プロファイル"
+            }
+
+        Raises:
+            ValueError: 話者名が見つからない
+        """
+        pass
+
+    def get_all_profiles(self, speaker_name: str) -> List[Dict[str, Any]]:
+        """
+        指定した話者の全サンプルを取得（複数音声サンプルがある場合）。
+
+        Returns:
+            声プロファイルのリスト
+        """
+        pass
+```
+
+---
+
+## 2.2 CLI Tool Interface
+
+### 2.2.1 `src/tools/test_synthesis.py`
+
+話者一覧の表示および、話者指定 + 任意テキストで音声合成を行う CLI。argparse と VoiceProfileManager を連携させる。
+
+```bash
+# 話者一覧の表示
+python -m src.tools.test_synthesis --list-speakers
+
+# 音声合成（話者指定 + テキスト）
+python -m src.tools.test_synthesis --speaker gohan --text "今日はいい天気ですね"
+
+# 音声合成（出力ファイル指定）
+python -m src.tools.test_synthesis --speaker gohan --text "テストです" --output outputs/test.wav
+
+# 言語指定（デフォルト: ja）
+python -m src.tools.test_synthesis --speaker friend_a --text "Hello world" --language en
+```
+
+- **既存 API の修正なし**: `Qwen3TTSWrapper` および `VoiceCloneManager` はそのまま使用する。VoiceProfileManager から取得したプロファイル（audio_path, corpus_text）を VoiceCloneManager に渡して音声生成する。
+
+---
+
+## 2.3 TTS Module API
+
+### 2.3.1 `src/tts/qwen_wrapper.py`
 
 #### クラス: `Qwen3TTSWrapper`
 
@@ -67,7 +160,7 @@ class Qwen3TTSWrapper:
 
 ---
 
-### 2.1.2 `src/tts/voice_clone.py`
+### 2.3.2 `src/tts/voice_clone.py`
 
 #### クラス: `VoiceCloneManager`（または関数群）
 
@@ -115,9 +208,9 @@ class VoiceCloneManager:
 
 ---
 
-## 2.2 Discord Bot API
+## 2.4 Discord Bot API
 
-### 2.2.1 `src/bot/commands.py`
+### 2.4.1 `src/bot/commands.py`
 
 スラッシュコマンドの定義。`discord.app_commands` を使用する想定。
 
@@ -164,7 +257,7 @@ async def leave_vc(interaction: discord.Interaction) -> None:
 
 ---
 
-### 2.2.2 `src/bot/events.py`
+### 2.4.2 `src/bot/events.py`
 
 メッセージイベントのハンドラ。テキストを検知し、TTS → 再生を依頼する。
 
@@ -204,9 +297,9 @@ async def on_message(message: discord.Message) -> None:
 
 ---
 
-## 2.3 Audio Module API
+## 2.5 Audio Module API
 
-### 2.3.1 `src/audio/player.py`
+### 2.5.1 `src/audio/player.py`
 
 VC での音声再生を管理する。
 
@@ -244,7 +337,7 @@ class AudioPlayer:
 
 ---
 
-### 2.3.2 `src/audio/file_manager.py`
+### 2.5.2 `src/audio/file_manager.py`
 
 一時 WAV ファイルの作成と削除を管理する。
 
@@ -296,7 +389,7 @@ class TempFileManager:
 
 ---
 
-## 2.4 Config Module API（参考）
+## 2.6 Config Module API（参考）
 
 Bot や TTS から利用する設定の窓口。API 設計の一環としてシグネチャのみ記載する。
 
@@ -333,13 +426,16 @@ class Settings:
 
 ---
 
-## 2.5 モジュール間の呼び出し関係（まとめ）
+## 2.7 モジュール間の呼び出し関係（まとめ）
 
 | 呼び出し元 | 呼び出し先 | 主な API |
 |------------|------------|----------|
+| Bot (events) | Profile (voice_profile_manager) | `VoiceProfileManager.get_profile(speaker_name)` |
 | Bot (events) | TTS (voice_clone) | `VoiceCloneManager.synthesize(text, language)` |
 | Bot (events) | Audio (file_manager) | `TempFileManager.create_temp_wav(wav_array, sr)` |
 | Bot (events) | Audio (player) | `AudioPlayer.play_audio(voice_client, audio_path)` |
+| CLI (test_synthesis) | Profile | `VoiceProfileManager.list_speakers()`, `get_profile()` |
+| CLI (test_synthesis) | TTS (voice_clone) | `VoiceCloneManager.synthesize(text, language)`（プロファイル取得後に ref_audio, ref_text を渡して生成） |
 | Bot / TTS | Config | `Settings.load()` または注入された `Settings` |
 | TTS (voice_clone) | TTS (qwen_wrapper) | `Qwen3TTSWrapper.generate_voice(...)` |
 
